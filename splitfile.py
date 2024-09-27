@@ -20,11 +20,6 @@ def split_large_file(input_filename, output_prefix, chunk_size):
                 print(f"已写入文件：{output_filename}")
             chunk_number += 1
 
-# # 调用函数
-# input_filename = 'path_to_your_large_file.txt'  # 替换为你的文件路径
-# output_prefix = 'split_output'
-# chunk_size = 500 * 1024 * 1024  # 500MB
-# split_large_file(input_filename, output_prefix, chunk_size)
 
 if __name__ == '__main__':
     # 500MB

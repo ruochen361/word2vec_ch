@@ -9,7 +9,6 @@ import re
 from opencc import OpenCC 
 from tqdm import tqdm
 import codecs
-import pandas as pd
 
 def wiki_replace(d,openCC):
     s = d[1]
@@ -35,15 +34,17 @@ def wiki_process(input_file,save_path):
     for d in w:
         if not re.findall('^[a-zA-Z]+:', d[0]) and d[0] and not re.findall(u'^#', d[1]):
             s = wiki_replace(d,openCC)
-            f.write(s+'\n\n\n')
-            i += 1
-            if i % 100 == 0:
-                w.set_description(u'已获取%s篇文章'%i)
-    
+            if s.strip():
+                f.write(s+'\n\n\n')
+                i += 1
+                if i % 100 == 0:
+                    w.set_description(u'已获取%s篇文章'%i)
+        if i >10:
+            break
     f.close()
     
 if __name__ == '__main__':
     input_file = "G:\\nlp\zhwiki-latest-pages-articles.xml.bz2"  # bz2文件存放位置
-    save_path = 'G:\\nlp\zhwiki_simplified.txt'   # txt文件保存位置
+    save_path = 'G:\\nlp\zhwiki_simplified_temp.txt'   # txt文件保存位置
     wiki_process(input_file,save_path)
     # >>> 已获取0篇文章: 46it [00:02, 16.40it/s]
