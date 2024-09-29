@@ -165,9 +165,12 @@ def train_cbow(tokenized_text, embedding_dim=100, window_size=2, batch_size=32, 
 
     ## 加载已训练模型
     # model.load_state_dict(torch.load('skip_gram_model.pth'))
+    # 训练模型
     trained_model = train(model, dataloader, num_epochs, learning_rate)
-    embeddings = trained_model.embeddings.weight.data
 
+    # 训练后的词向量
+    embeddings = trained_model.embedding.weight.data.numpy()
+    
     return embeddings
 
 
@@ -178,6 +181,7 @@ if __name__ == "__main__":
     tokenized_text = text.split()
 
     # 训练 CBOW 模型并获取词向量
-    embeddings = train_cbow(tokenized_text, embedding_dim=50, num_epochs=50)
+    embeddings = train_cbow(tokenized_text, embedding_dim=10, num_epochs=10)
     print("Word Embeddings:")
     print(embeddings)
+    

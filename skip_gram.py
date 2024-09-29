@@ -128,6 +128,9 @@ def train_skip_gram(sentences, embedding_dim=100, window_size=2, epochs=100, lea
     """
     vocab, word_to_idx, idx_to_word, data = prepare_data(sentences, window_size)
     model = SkipGramModel(len(vocab), embedding_dim)
+
+    ## 加载已训练模型
+    # model.load_state_dict(torch.load('skip_gram_model.pth'))
     trained_model = train(model, data, word_to_idx, epochs, learning_rate)
     embeddings = trained_model.embeddings.weight.data
     return {word: embeddings[idx].tolist() for word, idx in word_to_idx.items()}

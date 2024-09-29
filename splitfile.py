@@ -23,4 +23,4 @@ def split_large_file(input_filename, output_prefix, chunk_size):
 
 if __name__ == '__main__':
     # 500MB
-    split_large_file('G:\\nlp\zhwiki_simplified.txt','zhwiki_simplified',200*1024*1024)
+    split_large_file('E:\postgradute\\nlp\zhwiki_simplified_6_seg_ltp.txt','E:\postgradute\\nlp\zhwiki_simplified_6_seg_ltp',20*1024*1024)

@@ -33,9 +33,8 @@ if __name__ == '__main__':
             seg = " ".join(words.cws)
             target.writelines(seg)
 
-        if linenum % 10000 == 0:
-            print(linenum)
-        linenum = linenum+1
+            if linenum % 10000 == 0:
+                print(linenum)
         line = f.readline()
 
     print("end time",int(time.time()))
