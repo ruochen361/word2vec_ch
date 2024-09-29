@@ -1,35 +1,60 @@
 import numpy as np
-from gensim.models import KeyedVectors
+from scipy.spatial.distance import cosine
 
-# 加载预训练的词向量模型
-model_path = 'CBOW_model.pth'  # 请替换为实际路径
-word_vectors = KeyedVectors.load_word2vec_format(model_path, binary=True)
+def load_word_vectors(file_path):
+    """
+    从 .txt 文件中加载词向量。
+    """
+    word_vectors = {}
+    with open(file_path, 'r', encoding='utf-8') as file:
+        for line in file:
+            parts = line.strip().split()
+            word = parts[0]
+            vector = np.array(parts[1:], dtype=np.float32)
+            word_vectors[word] = vector
+    return word_vectors
 
-def cosine_similarity(vec1, vec2):
-    """ 计算两个向量之间的余弦相似度 """
-    dot_product = np.dot(vec1, vec2)
-    norm_a = np.linalg.norm(vec1)
-    norm_b = np.linalg.norm(vec2)
-    return dot_product / (norm_a * norm_b)
-
-def find_similar_words(target_word, topn=5):
-    """ 输入一个词，返回最相近的词及词向量 """
-    if target_word not in word_vectors:
-        print(f"词 '{target_word}' 不在词向量模型中")
+def find_similar_words(word, word_vectors, top_n=10):
+    """
+    查找与给定词最相近的词。
+    """
+    word_vector = word_vectors.get(word)
+    if word_vector is None:
         return []
-    
-    target_vector = word_vectors[target_word]
-    similarities = [(word, cosine_similarity(target_vector, word_vectors[word])) 
-                    for word in word_vectors.vocab.keys()]
-    # 排序并取前N个最相似的词
-    sorted_similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
-    return sorted_similarities[:topn]
 
+    similarities = []
+    for w, vec in word_vectors.items():
+        if w != word:
+            sim = 1 - cosine(word_vector, vec)
+            similarities.append((w, sim, vec))
+
+    # 排序并返回最相似的词
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    return similarities[:top_n]
+
+def get_top_similar_words(words, word_vectors, top_n=10):
+    """
+    获取每个词最相近的词。
+    """
+    results = {}
+    for word in words:
+        similar_words = find_similar_words(word, word_vectors, top_n=top_n)
+        results[word] = similar_words
+    return results
 
 if __name__ == "__main__":
+
+    # 词向量文件路径
+    file_path = 'E:\postgradute\\nlp\seg_jieba_1_1_embeddings_2.txt'
+
     word_list = ['苹果', '老虎', '龙', '朋友', '舅爷', '秦朝', '四羊方尊', '李清照', '功唐不捐', '道', '火锅', '西湖醋鱼']
 
-    for word in word_list:
-        similar_words = find_similar_words(word)
-        for w, similarity in similar_words:
-            print(f"原词：{word}, 近义词: {w}, 相似度: {similarity}")
+    # 读取词向量
+    word_vectors = load_word_vectors(file_path)
+    # 计算最相近的词
+    top_similar_words = get_top_similar_words(word_list, word_vectors, top_n=3)
+
+    # 输出结果
+    for word, similar_words in top_similar_words.items():
+        for sim_word, similarity,vector in similar_words:
+            print(f"原词：{word}, 近义词: {sim_word}, 相似度: {similarity:.4f}，Vector: {vector}")

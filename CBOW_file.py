@@ -135,6 +135,7 @@ def train_cbow(file_path, output_file, embedding_dim=100, window_size=2, batch_s
     # 初始化模型
     vocab_size = len(word_to_idx)
     model = CBOWModel(vocab_size, embedding_dim)
+    model.load_state_dict(torch.load('D:\workspace\\nlp\word2vec_ch\CBOW_model.pth'))
     print('初始化模型完成',int(time.time()))
     # 训练模型
     trained_model = train(model, dataloader, num_epochs, learning_rate)
@@ -148,14 +149,14 @@ def train_cbow(file_path, output_file, embedding_dim=100, window_size=2, batch_s
 # 示例用法
 if __name__ == "__main__":
     # 文件路径
-    file_path = 'G:\\nlp\\zhwiki_simplified_seg_jieba_stopwords_1_1.txt'
-    output_file = 'G:\\nlp\\seg_jieba_1_1_embeddings.txt'
+    file_path = 'E:\postgradute\\nlp\\zhwiki_simplified_seg_jieba_stopwords_1_1.txt'
+    output_file = 'E:\postgradute\\nlp\\seg_jieba_1_1_embeddings_2.txt'
     start = int(time.time())
     print("start time",start)
     # 训练 CBOW 模型并获取词向量
     train_cbow(file_path, embedding_dim=10, num_epochs=3, learning_rate = 0.1, output_file = output_file)
     end = int(time.time())
     print("end time", end)
-    print("耗时" )
+    print("耗时", end - start )
     # print("Word Embeddings:")
     # print(embeddings)

@@ -54,11 +54,11 @@ def cosine_similarity(vec1, vec2):
 
 if __name__ == "__main__":
     # 示例数据
-    file_path = 'G:\\nlp\\seg_jieba_1_1_embeddings.txt'  # 替换为实际文件路径
+    file_path = 'E:\postgradute\\nlp\\seg_jieba_1_1_embeddings_2.txt'  # 替换为实际文件路径
     word_vectors = load_word_vectors(file_path)
 
     # 执行类比实验
-    list = [
+    list = [        
         ['皇帝', '男人', '女人'],
         ['大鱼', '小鱼', '小鱼'],
         ['猫', '猫科动物', '狗'],
