@@ -62,7 +62,7 @@ def train(model, dataloader, num_epochs=100, learning_rate=0.001):
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
-        print(f"Epoch {epoch + 1}, Loss: {total_loss}")
+        print(f"Epoch {epoch + 1}, Loss: {total_loss}, {int(time.time())}")
     torch.save(model.state_dict(), 'CBOW_model.pth')
     return model
 
@@ -148,11 +148,14 @@ def train_cbow(file_path, output_file, embedding_dim=100, window_size=2, batch_s
 # 示例用法
 if __name__ == "__main__":
     # 文件路径
-    file_path = 'E:\postgradute\\nlp\\zhwiki_simplified_6_seg_ltp_1.txt'
-    output_file = 'E:\postgradute\\nlp\\embeddings.txt'
-    print("start time",int(time.time()))
+    file_path = 'G:\\nlp\\zhwiki_simplified_seg_jieba_stopwords_1_1.txt'
+    output_file = 'G:\\nlp\\seg_jieba_1_1_embeddings.txt'
+    start = int(time.time())
+    print("start time",start)
     # 训练 CBOW 模型并获取词向量
-    train_cbow(file_path, embedding_dim=10, num_epochs=3, learning_rate = 0.1,output_file=output_file)
-    print("end time",int(time.time()))
+    train_cbow(file_path, embedding_dim=10, num_epochs=3, learning_rate = 0.1, output_file = output_file)
+    end = int(time.time())
+    print("end time", end)
+    print("耗时" )
     # print("Word Embeddings:")
     # print(embeddings)

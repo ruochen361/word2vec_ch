@@ -14,7 +14,9 @@ class CBOWModel(nn.Module):
         :param embedding_dim: 词向量维度
         """
         super(CBOWModel, self).__init__()
+        # 嵌入层
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        # 输出层
         self.linear = nn.Linear(embedding_dim, vocab_size)
 
     def forward(self, inputs):
@@ -115,8 +117,9 @@ def train(model, dataloader, num_epochs=100, learning_rate=0.001):
     :return: 训练后的模型
     """
 
-    # 定义损失函数和优化器
-    loss_function = nn.CrossEntropyLoss(ignore_index=0)  # 忽略填充值
+    # 交叉熵损失函数 忽略填充值
+    loss_function = nn.CrossEntropyLoss(ignore_index=0)
+    # adam优化器
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # 训练循环
