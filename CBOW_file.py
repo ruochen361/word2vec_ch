@@ -56,6 +56,9 @@ class CBOWModel(nn.Module):
         # 获取目标样本的嵌入表示
         target_embed = self.embedding(target)
         # 获取负样本的嵌入表示
+        # 将负样本列表转换为张量，并合并成一个二维张量
+        negative_samples = [neg.clone().detach().to(self.device) for neg in negative_samples]
+        negative_samples = torch.stack(negative_samples, dim=0)
         negative_embed = self.embedding(negative_samples)
         
         # 计算输入样本与目标样本之间的点积，得到相似度得分
@@ -125,53 +128,66 @@ class CBOWDataset(Dataset):
         self.data = []
         self._build_data()
 
-def _build_data(self):
-    """
-    构建训练数据集。
-    
-    本方法首先将文本中的每个词转换为其对应的索引，然后计算每个词的频率和概率，
-    并根据这些概率生成负样本。随后，遍历每个词，收集其上下文词，构成训练数据对。
-    
-    属性:
-    - indexed_words: 列表，存储每个词的索引。
-    - freqs: 词频统计对象，记录每个词出现的频率。
-    - total_words: 整数，所有词的总数。
-    - prob: 字典，存储每个词的概率，即频率除以总词数。
-    - negatives: 字典，根据词的概率生成的负样本数量。
-    - data: 列表，存储训练数据对，每个数据对由上下文词和目标词组成。
-    """
-    
-    # 将文本中的每个词转换为对应的索引，如果词不在词典中，则使用0作为默认索引
-    indexed_words = [self.word_to_idx.get(w, 0) for w in self.tokenized_text]
-    
-    # 统计每个词的频率
-    freqs = Counter(indexed_words)
-    
-    # 计算所有词的总数
-    total_words = sum(freqs.values())
-    
-    # 计算每个词的概率，即频率除以总词数
-    prob = {word: freq / total_words for word, freq in freqs.items()}
-    
-    # 根据每个词的概率生成负样本数量，使用0.75次方对概率进行调整
-    self.negatives = {word: int(prob[word] ** 0.75 * total_words) for word in freqs}
-    
-    # 遍历每个词，收集其上下文词
-    for i, target_word in enumerate(indexed_words):
-        # 确定上下文词的范围，避免越界
-        context_words = indexed_words[max(0, i - self.window_size):i] + indexed_words[i+1:min(len(indexed_words), i + self.window_size + 1)]
+    def _build_data(self):
+        """
+        构建训练数据集。
         
-        # 如果存在上下文词，则将上下文词和目标词构成的数据对添加到训练数据中
-        if len(context_words) > 0:
-            self.data.append((context_words, target_word))
+        本方法首先将文本中的每个词转换为其对应的索引，然后计算每个词的频率和概率，
+        并根据这些概率生成负样本。随后，遍历每个词，收集其上下文词，构成训练数据对。
+        
+        属性:
+        - indexed_words: 列表，存储每个词的索引。
+        - freqs: 词频统计对象，记录每个词出现的频率。
+        - total_words: 整数，所有词的总数。
+        - prob: 字典，存储每个词的概率，即频率除以总词数。
+        - negatives: 字典，根据词的概率生成的负样本数量。
+        - data: 列表，存储训练数据对，每个数据对由上下文词和目标词组成。
+        """
+        
+        # 将文本中的每个词转换为对应的索引，如果词不在词典中，则使用0作为默认索引
+        indexed_words = [self.word_to_idx.get(w, 0) for w in self.tokenized_text]
+        
+        # 统计每个词的频率
+        freqs = Counter(indexed_words)
+        
+        # 计算所有词的总数
+        total_words = sum(freqs.values())
+        
+        # 计算每个词的概率，即频率除以总词数
+        prob = {word: freq / total_words for word, freq in freqs.items()}
+        
+        # 根据每个词的概率生成负样本数量，使用0.75次方对概率进行调整
+        self.negatives = {word: int(prob[word] ** 0.75 * total_words) for word in freqs}
+        
+        # 遍历每个词，收集其上下文词
+        for i, target_word in enumerate(indexed_words):
+            # 确定上下文词的范围，避免越界
+            context_words = indexed_words[max(0, i - self.window_size):i] + indexed_words[i+1:min(len(indexed_words), i + self.window_size + 1)]
+            
+            # 如果存在上下文词，则将上下文词和目标词构成的数据对添加到训练数据中
+            if len(context_words) > 0:
+                self.data.append((context_words, target_word))
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
         context_words, target_word = self.data[idx]
-        negative_samples = torch.multinomial(torch.tensor(list(self.negatives.values())), self.negative_samples, replacement=True)
-        negative_samples = [list(self.negatives.keys())[i] for i in negative_samples]
+         # 获取所有词的索引
+        all_indices = list(self.negatives.keys())
+        
+        # 计算概率分布
+        prob_dist = torch.tensor([self.negatives[word] for word in all_indices], dtype=torch.float)
+        
+        # 归一化概率分布
+        prob_dist /= prob_dist.sum()
+        
+        # 使用multinomial方法生成负样本索引
+        negative_samples_indices = torch.multinomial(prob_dist, self.negative_samples, replacement=True)
+        
+        # 将索引转换为对应的整数张量
+        negative_samples = torch.tensor(all_indices)[negative_samples_indices]
+        
         return context_words, target_word, negative_samples
 
 def pad_sequence(sequences, padding_value=0):
@@ -259,7 +275,9 @@ def train(model, dataloader, num_epochs=100, learning_rate=0.001):
             # 将上下文、目标和负样本转移到选定的设备上
             context = context.to(device)
             target = target.to(device)
-            negative_samples = negative_samples.to(device)
+            # 将负样本列表合并成一个二维张量
+            # negative_samples = torch.stack(negative_samples, dim=0)
+            # negative_samples = negative_samples.to(device)
 
             # 零化梯度，为新一轮反向传播做准备
             optimizer.zero_grad()
@@ -344,12 +362,12 @@ def train_cbow(file_path, output_file, embedding_dim=100, window_size=2, batch_s
 # 示例用法
 if __name__ == "__main__":
     # 文件路径
-    file_path = 'G:\\nlp\\zhwiki_simplified_seg_jieba_stopwords_1_1.txt'
-    output_file = 'G:\\nlp\\seg_jieba_1_1_embeddings_4.txt'
+    file_path = 'E:\postgradute\\nlp\\zhwiki_simplified_seg_jieba_stopwords_1_1.txt'
+    output_file = 'E:\postgradute\\nlp\\seg_jieba_1_1_embeddings_4.txt'
     start = int(time.time())
     print("start time",start)
     # 训练 CBOW 模型并获取词向量
-    train_cbow(file_path, embedding_dim=20, num_epochs=10, learning_rate = 0.01, output_file = output_file)
+    train_cbow(file_path, embedding_dim=1, num_epochs=1, learning_rate = 0.01, output_file = output_file)
     end = int(time.time())
     print("end time", end)
     print("耗时", end - start )
