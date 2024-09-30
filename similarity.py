@@ -1,18 +1,6 @@
 import numpy as np
 from scipy.spatial.distance import cosine
-
-def load_word_vectors(file_path):
-    """
-    从 .txt 文件中加载词向量。
-    """
-    word_vectors = {}
-    with open(file_path, 'r', encoding='utf-8') as file:
-        for line in file:
-            parts = line.strip().split()
-            word = parts[0]
-            vector = np.array(parts[1:], dtype=np.float32)
-            word_vectors[word] = vector
-    return word_vectors
+import train_utils
 
 def find_similar_words(word, word_vectors, top_n=10):
     """
@@ -50,7 +38,7 @@ if __name__ == "__main__":
     word_list = ['苹果', '老虎', '龙', '朋友', '舅爷', '秦朝', '四羊方尊', '李清照', '功唐不捐', '道', '火锅', '西湖醋鱼']
 
     # 读取词向量
-    word_vectors = load_word_vectors(file_path)
+    word_vectors = train_utils.trainload_word_vectors(file_path)
     # 计算最相近的词
     top_similar_words = get_top_similar_words(word_list, word_vectors, top_n=3)
 

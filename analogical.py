@@ -1,20 +1,5 @@
 import numpy as np
-
-def load_word_vectors(file_path):
-    """
-    从文件中加载词向量
-
-    :param file_path: 词向量文件路径
-    :return: 包含词和向量的字典
-    """
-    word_vectors = {}
-    with open(file_path, 'r', encoding='utf-8') as file:
-        for line in file:
-            parts = line.strip().split()
-            word = parts[0]
-            vector = np.array(parts[1:], dtype=np.float32)
-            word_vectors[word] = vector
-    return word_vectors
+import train_utils
 
 def analogical_reasoning(word_vectors, a, b, c, topn=5):
     """
@@ -55,7 +40,7 @@ def cosine_similarity(vec1, vec2):
 if __name__ == "__main__":
     # 示例数据
     file_path = 'E:\postgradute\\nlp\\seg_jieba_1_1_embeddings_2.txt'  # 替换为实际文件路径
-    word_vectors = load_word_vectors(file_path)
+    word_vectors = train_utils.load_word_vectors(file_path)
 
     # 执行类比实验
     list = [        

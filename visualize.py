@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
-
+import train_utils
 
 # 配置 Matplotlib 字体
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 使用黑体
@@ -34,22 +34,6 @@ def visualize_words(words, vectors):
     plt.grid(True)
     plt.show()
 
-def load_word_vectors(file_path):
-    """
-    从文件中加载词向量
-
-    :param file_path: 词向量文件路径
-    :return: 包含词和向量的字典
-    """
-    word_vectors = {}
-    with open(file_path, 'r', encoding='utf-8') as file:
-        for line in file:
-            parts = line.strip().split()
-            word = parts[0]
-            vector = np.array(parts[1:], dtype=np.float32)
-            word_vectors[word] = vector
-    return word_vectors
-
 
 
 if __name__ == "__main__":
@@ -58,7 +42,7 @@ if __name__ == "__main__":
     words = ['李白', '杜甫', '白居易', '水稻', '小麦', '高粱', '张', '诸葛','柴', '盐', '茶', ]
 
     file_path = 'E:\postgradute\\nlp\\seg_jieba_1_1_embeddings_2.txt'  # 替换为实际文件路径
-    word_vectors = load_word_vectors(file_path)
+    word_vectors = train_utils.load_word_vectors(file_path)
 
     # vectors = [word_vectors[word] for word in words]
     vectors = [word_vectors[word] for word in words if word in word_vectors]
