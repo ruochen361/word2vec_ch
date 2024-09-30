@@ -1,4 +1,5 @@
 # utils.py
+import numpy as np
 
 def read_tokenize_file(file_path, chunk_size=10000):
     """

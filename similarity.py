@@ -33,12 +33,12 @@ def get_top_similar_words(words, word_vectors, top_n=10):
 if __name__ == "__main__":
 
     # 词向量文件路径
-    file_path = 'E:\postgradute\\nlp\seg_jieba_1_1_embeddings_2.txt'
+    file_path = 'G:\\nlp\\seg_jieba_1_1_embeddings_4.txt'
 
     word_list = ['苹果', '老虎', '龙', '朋友', '舅爷', '秦朝', '四羊方尊', '李清照', '功唐不捐', '道', '火锅', '西湖醋鱼']
 
     # 读取词向量
-    word_vectors = train_utils.trainload_word_vectors(file_path)
+    word_vectors = train_utils.load_word_vectors(file_path)
     # 计算最相近的词
     top_similar_words = get_top_similar_words(word_list, word_vectors, top_n=3)
 
