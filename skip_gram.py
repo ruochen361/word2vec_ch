@@ -126,7 +126,7 @@ def train_skip_gram(sentences, embedding_dim=100, window_size=2, epochs=100, lea
     返回值:
     - word_vectors: 包含词汇表中每个词的嵌入向量的字典
     """
-    vocab, word_to_idx, idx_to_word, data = prepare_data(sentences, window_size)
+    vocab, word_to_idx, idx_to_word, data = prepare_data([sentences], window_size)
     model = SkipGramModel(len(vocab), embedding_dim)
 
     ## 加载已训练模型
