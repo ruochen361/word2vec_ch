@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from collections import Counter, defaultdict
 import time
-import train_utils
+import assess.train_utils as train_utils
 from torch.utils.data import Dataset, DataLoader
 
 class SkipGramDataset(Dataset):

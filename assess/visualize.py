@@ -41,7 +41,7 @@ if __name__ == "__main__":
     # words = ['李白', '杜甫', '白居易', '水稻', '小麦', '高粱', '张', '诸葛','柴', '盐', '茶','瞒天过海','树上开花',"围魏救赵"]
     words = ['李白', '杜甫', '白居易', '水稻', '小麦', '高粱', '张', '诸葛','柴', '盐', '茶', ]
 
-    file_path = 'E:\postgradute\\nlp\\seg_jieba_1_1_embeddings_2.txt'  # 替换为实际文件路径
+    file_path = 'E:\postgradute\\nlp\\seg_jieba_1_1_embeddings_4.txt'  # 替换为实际文件路径
     word_vectors = train_utils.load_word_vectors(file_path)
 
     # vectors = [word_vectors[word] for word in words]

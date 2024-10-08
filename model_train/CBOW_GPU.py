@@ -5,7 +5,7 @@ from torch.utils.data import Dataset, DataLoader
 from collections import Counter
 import torch.nn.functional as F
 import time 
-import train_utils
+import assess.train_utils as train_utils
 
 class CBOWModel(nn.Module):
     def __init__(self, vocab_size, embedding_dim, device='cpu'):

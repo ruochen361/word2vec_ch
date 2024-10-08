@@ -5,8 +5,8 @@ from torch.utils.data import Dataset, DataLoader
 from collections import Counter
 import torch.nn.functional as F
 import time 
-import train_utils
-import huffman_tree
+import assess.train_utils as train_utils
+import model_train.huffman_tree as huffman_tree
 
 class CBOWModel(nn.Module):
 
