@@ -3,8 +3,19 @@ import torch.nn as nn
 import torch.optim as optim
 from collections import Counter, defaultdict
 import time
-import assess.train_utils as train_utils
 from torch.utils.data import Dataset, DataLoader
+import sys
+from pathlib import Path
+# 获取当前文件的绝对路径
+current_file_path = Path(__file__).resolve()
+# 获取当前文件所在的目录
+current_dir = current_file_path.parent
+# 获取项目根目录
+root_dir = current_dir.parent
+# 将项目根目录添加到系统路径中
+sys.path.append(str(root_dir))
+
+from assess import train_utils
 
 class SkipGramDataset(Dataset):
     """
