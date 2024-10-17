@@ -23,15 +23,19 @@ class SkipGramDataset(Dataset):
     """
     def __init__(self, data, word_to_idx):
         self.data = data
+        # 单词到其对应索引的字典
         self.word_to_idx = word_to_idx
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, index):
+        # 通过索引获取目标词和上下文词
         target, context = self.data[index]
+        # 将目标词和上下文词转换为对应的索引
         target_idx = self.word_to_idx[target]
         context_idx = self.word_to_idx[context]
+        # 返回目标词和上下文词的索引
         return target_idx, context_idx
     
 
@@ -66,8 +70,11 @@ class SkipGramModel(nn.Module):
         - log_probs: 输入词周围的上下文词的对数概率
         """
         inputs = inputs.to(self.device)
+        # 通过嵌入层将词的索引转换为词向量
         embeds = self.embeddings(inputs)
+        # 将词向量传递到线性层，得到输出
         out = self.linear(embeds)
+        # 对输出应用log_softmax函数，得到上下文词的对数概率
         log_probs = nn.functional.log_softmax(out, dim=1)
         return log_probs
 
@@ -98,23 +105,24 @@ def prepare_data(sentences, window_size=3):
     data = []
     for sentence in sentences:
         for i, word in enumerate(sentence):
+            # 上下文词范围
             context = sentence[max(0, i - window_size):i] + sentence[i+1:i+window_size+1]
             target = word
+            # 将目标词和上下文词配对加入训练数据
             for w in context:
                 data.append((target, w))
                 
     return vocab, word_to_idx, idx_to_word, data
 
-def train(model, dataloader, word_to_idx, num_epochs=100, learning_rate=0.01):
+def train(model, dataloader, num_epochs=100, learning_rate=0.01):
     """
     模型训练函数。
     
     参数:
     - model: Skip-Gram模型
-    - data: 训练数据，包含目标词和上下文词的配对
-    - word_to_idx: 词到索引的映射字典
-    - epochs: 训练轮数
-    - learning_rate: 学习率
+    - dataloader: 训练数据加载器，包含目标词和上下文词的配对
+    - num_epochs: 训练轮数，默认为100轮
+    - learning_rate: 学习率，默认为0.01
     
     返回值:
     - 训练完成的模型
@@ -122,7 +130,9 @@ def train(model, dataloader, word_to_idx, num_epochs=100, learning_rate=0.01):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)  # 将模型移动到 GPU
 
+    # 定义交叉熵损失函数，并将其移动到选定的设备上
     criterion = nn.CrossEntropyLoss().to(device)
+    # 定义优化器，用于更新模型参数
     optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     
     for epoch in range(num_epochs):
@@ -131,19 +141,19 @@ def train(model, dataloader, word_to_idx, num_epochs=100, learning_rate=0.01):
             target, context = batch
             target = target.to(device)  # 将目标数据移动到 GPU
             context = context.to(device)  # 将输入数据移动到 GPU
-            
+            # 清零模型的梯度
             model.zero_grad()
-            
+            # 前向传播，获取目标词的对数概率
             log_probs = model(target)
+            # 计算损失
             loss = criterion(log_probs, context)
-            
+            # 反向传播，计算梯度
             loss.backward()
+            # 更新模型参数
             optimizer.step()
             
             total_loss += loss.item()
-        
         print(f"Epoch {epoch + 1}, Loss: {total_loss},{int(time.time())}")
-    
     # 保存模型
     torch.save(model.state_dict(), 'skip_gram_model.pth')
     
@@ -181,7 +191,7 @@ def train_skip_gram(file_path, output_file, embedding_dim=100, window_size=3, nu
     ## 加载已训练模型
     # model
     model.load_state_dict(torch.load('skip_gram_model.pth'))
-    trained_model = train(model, dataloader, word_to_idx, num_epochs, learning_rate)
+    trained_model = train(model, dataloader, num_epochs, learning_rate)
     print('训练模型完成',int(time.time()))
 
     tensor = trained_model.embeddings.weight.data
